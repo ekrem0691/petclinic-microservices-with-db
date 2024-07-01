@@ -1420,11 +1420,7 @@ terraform apply -auto-approve -no-color
 
 ```bash
 ANS_KEYPAIR="petclinic-ansible-test-dev.key"
-<<<<<<< HEAD
 ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${WORKSPACE}/${ANS_KEYPAIR} ubuntu@172.31.91.243 hostname
-=======
-ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${WORKSPACE}/${ANS_KEYPAIR} ubuntu@172.31.12.166 hostname
->>>>>>> feature/msp-16
 ```
   * Click `Save`
 
@@ -1911,8 +1907,8 @@ DNS_NAME: "DNS Name of your application"
 * Create an ``S3 bucket`` for Helm charts. In the bucket, create a ``folder`` called ``stable/myapp``. The example in this pattern uses s3://petclinic-helm-charts-<put-your-name>/stable/myapp as the target chart repository.
 
 ```bash
-aws s3api create-bucket --bucket petclinic-helm-charts-ekrem --region us-east-1
-aws s3api put-object --bucket petclinic-helm-charts-ekrem --key stable/myapp/
+aws s3api create-bucket --bucket petclinic-helm-charts-<put-your-name> --region us-east-1
+aws s3api put-object --bucket petclinic-helm-charts-<put-your-name> --key stable/myapp/
 ```
 
 * Install the helm-s3 plugin for Amazon S3.
@@ -1934,7 +1930,7 @@ exit
 * ``Initialize`` the Amazon S3 Helm repository.
 
 ```bash
-AWS_REGION=us-east-1 helm s3 init s3://petclinic-helm-charts-ekrem/stable/myapp 
+AWS_REGION=us-east-1 helm s3 init s3://petclinic-helm-charts-<put-your-name>/stable/myapp 
 ```
 
 * The command creates an ``index.yaml`` file in the target to track all the chart information that is stored at that location.
@@ -1942,14 +1938,14 @@ AWS_REGION=us-east-1 helm s3 init s3://petclinic-helm-charts-ekrem/stable/myapp
 * Verify that the ``index.yaml`` file was created.
 
 ```bash
-aws s3 ls s3://petclinic-helm-charts-ekrem/stable/myapp/
+aws s3 ls s3://petclinic-helm-charts-<put-your-name>/stable/myapp/
 ```
 
 * Add the Amazon S3 repository to Helm on the client machine. 
 
 ```bash
 helm repo ls
-AWS_REGION=us-east-1 helm repo add stable-petclinicapp s3://petclinic-helm-charts-ekrem/stable/myapp/
+AWS_REGION=us-east-1 helm repo add stable-petclinicapp s3://petclinic-helm-charts-<put-your-name>/stable/myapp/
 ```
 
 * Update `version` and `appVersion` field of `k8s/petclinic_chart/Chart.yaml` file as below for testing.
@@ -2135,9 +2131,9 @@ git push --set-upstream origin feature/msp-18
 ```
 ```bash
 PATH="$PATH:/usr/local/bin"
-APP_REPO_NAME="clarusway-repo-eko/petclinic-app-dev" # Write your own repo name
+APP_REPO_NAME="clarusway-repo/petclinic-app-dev" # Write your own repo name
 AWS_REGION="us-east-1" #Update this line if you work on another region
-ECR_REGISTRY="217287848648.dkr.ecr.us-east-1.amazonaws.com" # Replace this line with your ECR name
+ECR_REGISTRY="046402772087.dkr.ecr.us-east-1.amazonaws.com" # Replace this line with your ECR name
 aws ecr create-repository \
     --repository-name ${APP_REPO_NAME} \
     --image-scanning-configuration scanOnPush=false \
@@ -2506,7 +2502,9 @@ managedNodeGroups:
     desiredCapacity: 2
     minSize: 2
     maxSize: 3
-    volumeSize: 8
+    volumeSize: 20
+    ssh:
+      allow: false
 ```
 
 - Commit the change, then push the script to the remote repo.
@@ -2544,7 +2542,7 @@ eksctl version
 - Download the Amazon EKS vended kubectl binary.
 
 ```bash
-curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.29.0/2024-01-04/bin/linux/amd64/kubectl
+curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.30.0/2024-05-12/bin/linux/amd64/kubectl
 ```
 
 - Apply execute permissions to the binary.
@@ -2587,7 +2585,9 @@ managedNodeGroups:
     desiredCapacity: 2
     minSize: 2
     maxSize: 3
-    volumeSize: 8
+    volumeSize: 20
+    ssh:
+      allow: false
 ```
 
 - Create an EKS cluster via `eksctl`. It will take a while.
@@ -2600,7 +2600,7 @@ eksctl create cluster -f cluster.yaml
 
 ```bash
 export PATH=$PATH:$HOME/bin
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.0/deploy/static/provider/cloud/deploy.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/cloud/deploy.yaml
 ```
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -3089,7 +3089,7 @@ echo \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update
 
-# RKE is not compatible with the current Docker version (v25 hence we need to install an earlier version of Docker)
+# RKE is not compatible with the current Docker version (v27 hence we need to install an earlier version of Docker)
 # List the available versions:
 
 apt-cache madison docker-ce | awk '{ print $3 }'
@@ -3151,7 +3151,7 @@ From ACM            : *.clarusway.us   # change with your dns name
 * Install RKE, the Rancher Kubernetes Engine, [Kubernetes distribution and command-line tool](https://rancher.com/docs/rke/latest/en/installation/)) on Jenkins Server.
 
 ```bash
-curl -SsL "https://github.com/rancher/rke/releases/download/v1.5.6/rke_linux-amd64" -o "rke_linux-amd64"
+curl -SsL "https://github.com/rancher/rke/releases/download/v1.5.10/rke_linux-amd64" -o "rke_linux-amd64"
 sudo mv rke_linux-amd64 /usr/local/bin/rke
 chmod +x /usr/local/bin/rke
 rke --version
